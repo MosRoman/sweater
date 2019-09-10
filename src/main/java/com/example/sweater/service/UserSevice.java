@@ -4,7 +4,6 @@ import com.example.sweater.domain.Role;
 import com.example.sweater.domain.User;
 import com.example.sweater.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+
 public class UserSevice implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
@@ -26,15 +26,11 @@ public class UserSevice implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${hostname}")
-    private String hostname;
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findByUsername(username);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+        User user =  userRepo.findByUsername(username);
+        if(user ==null){
+             throw  new UsernameNotFoundException("User not found");
         }
 
         return user;
@@ -47,7 +43,7 @@ public class UserSevice implements UserDetailsService {
             return false;
         }
 
-        user.setActive(true);
+//        user.setActive(true);
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivationCode(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -63,9 +59,8 @@ public class UserSevice implements UserDetailsService {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
                     "Hello, %s! \n" +
-                            "Welcome to Sweater. Please, visit next link: http://%s/activate/%s",
+                            "Welcome to Sweater. Please, visit next link: http://localhost:8080/activate/%s",
                     user.getUsername(),
-                    hostname,
                     user.getActivationCode()
             );
 
@@ -80,6 +75,7 @@ public class UserSevice implements UserDetailsService {
             return false;
         }
 
+        user.setActive(true);
         user.setActivationCode(null);
 
         userRepo.save(user);
@@ -91,7 +87,7 @@ public class UserSevice implements UserDetailsService {
         return userRepo.findAll();
     }
 
-    public void saveUser(User user, String username, Map<String, String> form) {
+    public void savaUser(User user, String username, Map<String, String> form) {
         user.setUsername(username);
 
         Set<String> roles = Arrays.stream(Role.values())
@@ -124,11 +120,10 @@ public class UserSevice implements UserDetailsService {
         }
 
         if (!StringUtils.isEmpty(password)) {
-            user.setPassword(password);
+            user.setPassword(passwordEncoder.encode(password));
         }
 
         userRepo.save(user);
-
         if (isEmailChanged) {
             sendMessage(user);
         }
@@ -136,13 +131,12 @@ public class UserSevice implements UserDetailsService {
 
     public void subscribe(User currentUser, User user) {
         user.getSubscribers().add(currentUser);
-
         userRepo.save(user);
     }
 
     public void unsubscribe(User currentUser, User user) {
         user.getSubscribers().remove(currentUser);
-
         userRepo.save(user);
     }
 }
+

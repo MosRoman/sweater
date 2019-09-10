@@ -15,10 +15,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(value = {"/create-user-before.sql", "/messages-list-before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(value = {"/messages-list-after.sql", "/create-user-after.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @WithUserDetails(value = "dru")
-public class MainControllerTest {
+public class MessageControllerTest {
     @Autowired
     private MessageController controller;
 
@@ -39,7 +40,7 @@ public class MainControllerTest {
         this.mockMvc.perform(get("/main"))
                 .andDo(print())
                 .andExpect(authenticated())
-                .andExpect(xpath("//*[@id='navbarSupportedContent']/div").string("dru"));
+                .andExpect(xpath("//div[@id='navbarSupportedContent']/div").string("dru"));
     }
 
     @Test
@@ -47,7 +48,7 @@ public class MainControllerTest {
         this.mockMvc.perform(get("/main"))
                 .andDo(print())
                 .andExpect(authenticated())
-                .andExpect(xpath("//*[@id='message-list']/div").nodeCount(4));
+                .andExpect(xpath("//div[@id='message-list']/div").nodeCount(4));
     }
 
     @Test

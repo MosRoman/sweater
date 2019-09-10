@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,20 +16,25 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserSeviceTest {
+
     @Autowired
     private UserSevice userSevice;
 
     @MockBean
-    private UserRepo userRepo;
+    private PasswordEncoder encoder;
 
     @MockBean
     private MailSender mailSender;
 
     @MockBean
-    private PasswordEncoder passwordEncoder;
+    private UserRepo userRepo;
 
     @Test
     public void addUser() {
@@ -44,62 +48,60 @@ public class UserSeviceTest {
         Assert.assertNotNull(user.getActivationCode());
         Assert.assertTrue(CoreMatchers.is(user.getRoles()).matches(Collections.singleton(Role.USER)));
 
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
-        Mockito.verify(mailSender, Mockito.times(1))
-                .send(
-                        ArgumentMatchers.eq(user.getEmail()),
-                        ArgumentMatchers.anyString(),
-                        ArgumentMatchers.anyString()
-                );
+        verify(userRepo, times(1)).save(user);
+        verify(mailSender, times(1)).send(ArgumentMatchers.eq(user.getEmail()),
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString());
+
     }
 
     @Test
-    public void addUserFailTest() {
+    public void addUserFail() {
         User user = new User();
 
         user.setUsername("John");
 
-        Mockito.doReturn(new User())
-                .when(userRepo)
-                .findByUsername("John");
+        doReturn(new User()).when(userRepo).findByUsername("John");
 
         boolean isUserCreated = userSevice.addUser(user);
 
         Assert.assertFalse(isUserCreated);
 
-        Mockito.verify(userRepo, Mockito.times(0)).save(ArgumentMatchers.any(User.class));
-        Mockito.verify(mailSender, Mockito.times(0))
-                .send(
-                        ArgumentMatchers.anyString(),
-                        ArgumentMatchers.anyString(),
-                        ArgumentMatchers.anyString()
-                );
+        verify(userRepo, times(0)).save(ArgumentMatchers.any(User.class));
+        verify(mailSender, times(0)).send(ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString());
+
+
     }
 
     @Test
     public void activateUser() {
         User user = new User();
 
-        user.setActivationCode("bingo!");
+        user.setActivationCode("bingo");
 
-        Mockito.doReturn(user)
-                .when(userRepo)
-                .findByActivationCode("activate");
+        doReturn(user).when(userRepo).findByActivationCode("activate");
 
-        boolean isUserActivated = userSevice.activateUser("activate");
+        boolean isUserActivate = userSevice.activateUser("activate");
 
-        Assert.assertTrue(isUserActivated);
+        Assert.assertTrue(isUserActivate);
         Assert.assertNull(user.getActivationCode());
 
-        Mockito.verify(userRepo, Mockito.times(1)).save(user);
+        verify(userRepo, times(1)).save(user);
+
     }
 
     @Test
-    public void activateUserFailTest() {
-        boolean isUserActivated = userSevice.activateUser("activate me");
+    public void activateUserFail() {
 
-        Assert.assertFalse(isUserActivated);
 
-        Mockito.verify(userRepo, Mockito.times(0)).save(ArgumentMatchers.any(User.class));
+        boolean isUserActivate = userSevice.activateUser("activate");
+
+        Assert.assertFalse(isUserActivate);
+
+
+        verify(userRepo, times(0)).save(ArgumentMatchers.any(User.class));
+
     }
 }

@@ -14,10 +14,10 @@ public class Message {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    @NotBlank(message = "Please fill the message")
-    @Length(max = 2048, message = "Message too long (more than 2kB)")
+@NotBlank(message = "Please fill the message" )
+@Length(max = 2048, message = "Message to long (more 2KB")
     private String text;
-    @Length(max = 255, message = "Message too long (more than 255)")
+    @Length(max = 255, message = "Message to long (more 255")
     private String tag;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -28,9 +28,9 @@ public class Message {
 
     @ManyToMany
     @JoinTable(
-            name = "message_likes",
-            joinColumns = { @JoinColumn(name = "message_id") },
-            inverseJoinColumns = { @JoinColumn(name = "user_id")}
+            name ="message_likes",
+    joinColumns = { @JoinColumn(name = "message_id")},
+    inverseJoinColumns = { @JoinColumn(name = "user_id")}
     )
     private Set<User> likes = new HashSet<>();
 
@@ -83,15 +83,15 @@ public class Message {
         return filename;
     }
 
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
     public Set<User> getLikes() {
         return likes;
     }
 
     public void setLikes(Set<User> likes) {
         this.likes = likes;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
     }
 }

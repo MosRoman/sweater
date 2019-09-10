@@ -14,6 +14,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
+
 public class UserController {
     @Autowired
     private UserSevice userSevice;
@@ -42,7 +43,7 @@ public class UserController {
             @RequestParam Map<String, String> form,
             @RequestParam("userId") User user
     ) {
-        userSevice.saveUser(user, username, form);
+        userSevice.savaUser(user, username, form);
 
         return "redirect:/user";
     }
@@ -56,13 +57,10 @@ public class UserController {
     }
 
     @PostMapping("profile")
-    public String updateProfile(
-            @AuthenticationPrincipal User user,
-            @RequestParam String password,
-            @RequestParam String email
-    ) {
-        userSevice.updateProfile(user, password, email);
-
+    public String updateProfile(@AuthenticationPrincipal User user,
+                                @RequestParam String password,
+                                @RequestParam String email){
+        userSevice.updateProfile(user,password,email);
         return "redirect:/user/profile";
     }
 

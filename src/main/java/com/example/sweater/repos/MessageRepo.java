@@ -9,34 +9,44 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface MessageRepo extends CrudRepository<Message, Long> {
 
     @Query("select new com.example.sweater.domain.dto.MessageDto(" +
-            "   m, " +
-            "   count(ml), " +
-            "   sum(case when ml = :user then 1 else 0 end) > 0" +
-            ") " +
+            "m," +
+            " count(ml), " +
+            "sum(case when ml =:user then 1 else 0 end)>0 ) " +
             "from Message m left join m.likes ml " +
-            "group by m")
-    Page<MessageDto> findAll(Pageable pageable, @Param("user") User user);
+            "group by m order by m.id desc")
+    Page<MessageDto> findAll(Pageable pageable, @Param("user") User author);
 
     @Query("select new com.example.sweater.domain.dto.MessageDto(" +
-            "   m, " +
-            "   count(ml), " +
-            "   sum(case when ml = :user then 1 else 0 end) > 0" +
-            ") " +
+            "m," +
+            " count(ml), " +
+            "sum(case when ml =:user then 1 else 0 end) > 0 ) " +
             "from Message m left join m.likes ml " +
-            "where m.tag = :tag " +
-            "group by m")
-    Page<MessageDto> findByTag(@Param("tag") String tag, Pageable pageable, @Param("user") User user);
+            "where m.tag =:tag  " +
+            "group by m order by m.id desc")
+    Page<MessageDto> findByTag(@Param("tag") String tag, Pageable pageable, @Param("user") User author);
+
+
 
     @Query("select new com.example.sweater.domain.dto.MessageDto(" +
-            "   m, " +
-            "   count(ml), " +
-            "   sum(case when ml = :user then 1 else 0 end) > 0" +
-            ") " +
+            "m," +
+            " count(ml), " +
+            "sum(case when ml =:user then 1 else 0 end) > 0 ) " +
             "from Message m left join m.likes ml " +
-            "where m.author = :author " +
-            "group by m")
+            "where m.author =:author  " +
+            "group by m order by m.id desc")
     Page<MessageDto> findByUser(Pageable pageable, @Param("author") User author, @Param("user") User user);
+
+//    List<Message> findByTag(String tag);
+
+//    List<Message> findAll();
+
+//    Page<MessageDto> findMessageByAuthor(User user, Pageable pageable);
+
+    //    Page<Message> findByTag(String tag, Pageable pageable);
+
 }
